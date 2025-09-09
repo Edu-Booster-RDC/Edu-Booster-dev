@@ -131,7 +131,7 @@ const verifyEmail = async (req, res, next) => {
       return next(new HttpError("The code is required", 400));
     }
 
-    const user = await db.user.findUnique({
+    const user = await db.user.findFirst({
       where: { verificationCode: code },
     });
 
@@ -164,10 +164,64 @@ const verifyEmail = async (req, res, next) => {
 
     return res.status(200).json({ message: "Account verified successfully" });
   } catch (error) {
-    return next(error);
+    console.log(error);
+    return next(
+      new HttpError(error.message || "Une erreur est survenue.", 500)
+    );
   }
 };
 
-const newCode = async ()
+const newCode = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return next(new HttpError("PLease provide your email", 400));
+    }
 
-module.exports = { createUser };
+    const newEmail = email.toLowerCase();
+    const user = await db.user.findUnique({ where: { email: newEmail } });
+    if (!user) {
+      return next(new HttpError("User not found", 404));
+    }
+
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiration = new Date(Date.now() + 15 * 60 * 1000);
+
+    await db.user.update({
+      where: { id: user.id },
+      data: {
+        verificationCode: code,
+        codeExpiration: expiration,
+      },
+    });
+
+    await sendCode(
+      user.email,
+      code,
+      user.firstName,
+      user.lastName
+    );
+
+    const {
+      password: _,
+      verificationCode,
+      codeExpiration,
+      phoneVerificationCode,
+      phoneCodeExpiration,
+      ...safeUser
+    } = user;
+
+    res.status(201).json({
+      success: true,
+      user: safeUser,
+      message: `Un nouveau code de vérification a été envoyé à ${user.email}.`,
+    });
+  } catch (error) {
+    console.log(error);
+    return next(
+      new HttpError(error.message || "Une erreur est survenue.", 500)
+    );
+  }
+};
+
+module.exports = { createUser, verifyEmail, newCode };
