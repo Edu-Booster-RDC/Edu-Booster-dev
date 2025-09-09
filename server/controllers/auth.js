@@ -124,4 +124,50 @@ const createUser = async (req, res, next) => {
   }
 };
 
+const verifyEmail = async (req, res, next) => {
+  try {
+    const { code } = req.body; // ✅ fix body parsing
+    if (!code) {
+      return next(new HttpError("The code is required", 400));
+    }
+
+    const user = await db.user.findUnique({
+      where: { verificationCode: code },
+    });
+
+    if (!user) {
+      return next(new HttpError("Invalid verification code", 404));
+    }
+
+    if (user.isVerified) {
+      return next(new HttpError("This account has already been verified", 400));
+    }
+
+    const now = new Date();
+    if (user.codeExpiration < now) {
+      return res.status(400).json({
+        error: "expired",
+        email: user.email,
+        message: "The code has expired, please request a new one",
+      });
+    }
+
+    // ✅ update the user in Prisma
+    await db.user.update({
+      where: { id: user.id },
+      data: {
+        isVerified: true,
+        verificationCode: null,
+        codeExpiration: null,
+      },
+    });
+
+    return res.status(200).json({ message: "Account verified successfully" });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+const newCode = async ()
+
 module.exports = { createUser };
