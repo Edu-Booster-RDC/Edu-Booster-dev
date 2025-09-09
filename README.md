@@ -27,5 +27,5 @@ Elle offre aux étudiants, enseignants et institutions des outils puissants pour
 
 1. **Cloner le dépôt :**  
    ```bash
-   git clone https://github.com/ton-compte/edu-booster.git
+   git clone https://github.com/Edu-Booster-RDC/Edu-Booster-dev.git
    cd edu-booster
