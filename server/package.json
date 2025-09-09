@@ -1,0 +1,21 @@
+{
+  "name": "edu-booster-server",
+  "version": "1.0.0",
+  "description": "Edu Booster est une application moderne conçue pour booster l’éducation et rendre l’apprentissage plus simple, intelligent et motivant.",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Balekage Gael",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.2",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
