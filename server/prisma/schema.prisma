@@ -14,6 +14,7 @@ model User {
   password              String
   firstName             String
   lastName              String
+  refreshToken          String?
   role                  UserRole  @default(ETTUDIANT)
   phone                 String?
   avatarUrl             String?
@@ -23,8 +24,19 @@ model User {
   verificationCode      String?
   codeExpiration        DateTime?
   phoneVerificationCode String?
-  phoneCodeExpiration   DateTime?
-  phoneVerifed          Boolean   @default(false)
+
+  // Relation
+  schoolInfo SchoolInfo?
+}
+
+model SchoolInfo {
+  id      String @id @default(uuid())
+  class   String
+  filiere String
+  state   String
+  school  String
+  userId  String @unique
+  user    User   @relation(fields: [userId], references: [id])
 }
 
 enum UserRole {

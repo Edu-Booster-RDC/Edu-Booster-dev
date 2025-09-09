@@ -2,6 +2,10 @@ const HttpError = require("../models/error");
 const { PrismaClient } = require("../generated/prisma");
 const bcrypt = require("bcryptjs");
 const { sendCode } = require("../emails/sendMail");
+const {
+  generateAccessToken,
+  generateRefreshToken,
+} = require("../utils/generateTokens");
 
 const db = new PrismaClient();
 
@@ -195,12 +199,7 @@ const newCode = async (req, res, next) => {
       },
     });
 
-    await sendCode(
-      user.email,
-      code,
-      user.firstName,
-      user.lastName
-    );
+    await sendCode(user.email, code, user.firstName, user.lastName);
 
     const {
       password: _,
@@ -224,4 +223,67 @@ const newCode = async (req, res, next) => {
   }
 };
 
-module.exports = { createUser, verifyEmail, newCode };
+const login = async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return next(new HttpError("Fill in all fields", 400));
+    }
+
+    const newEmail = email.toLowerCase();
+    const user = await db.user.findFirst({ where: { email: newEmail } });
+    if (!user) {
+      return next(new HttpError("User not found", 404));
+    }
+
+    if (!user.isVerified) {
+      return res.status(403).json({
+        error: "unverified",
+        email: user.email,
+        message:
+          "Please verify your account before login, get the verification code from your inboxes",
+      });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return next(new HttpError("Incorect password", 401));
+    }
+
+    const accessToken = generateAccessToken(user.id, user.role);
+    const refreshToken = generateRefreshToken(user.id);
+    const now = new Date();
+
+    await db.user.update({
+      where: { id: user.id },
+      data: {
+        refreshToken,
+        lastLogin: now,
+      },
+    });
+
+    const {
+      password: _,
+      verificationCode,
+      codeExpiration,
+      phoneVerificationCode,
+      phoneCodeExpiration,
+      ...safeUser
+    } = user;
+
+    res.status(200).json({
+      success: true,
+      user: safeUser,
+      accessToken,
+      refreshToken,
+      message: `Login success`,
+    });
+  } catch (error) {
+    console.log(error);
+    return next(
+      new HttpError(error.message || "Une erreur est survenue.", 500)
+    );
+  }
+};
+
+module.exports = { createUser, verifyEmail, newCode, login };
