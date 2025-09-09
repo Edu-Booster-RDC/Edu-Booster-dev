@@ -3,6 +3,7 @@ require("dotenv").config();
 const cors = require("cors");
 const { notFound, errorHandler } = require("./middlewares/error");
 const authRoutes = require("./routes/auth.routes");
+const usersRoutes = require("./routes/users.routes");
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -12,6 +13,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 app.use("/api/auth", authRoutes);
+app.use("/api/users", usersRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
