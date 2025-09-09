@@ -15,6 +15,10 @@ app.use(cors());
 app.use("/api/auth", authRoutes);
 app.use("/api/users", usersRoutes);
 
+app.get("/", (req, res) => {
+  res.send("Api is warkin");
+});
+
 app.use(notFound);
 app.use(errorHandler);
 
