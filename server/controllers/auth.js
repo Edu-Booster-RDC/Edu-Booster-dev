@@ -6,6 +6,7 @@ const {
   generateAccessToken,
   generateRefreshToken,
 } = require("../utils/generateTokens");
+const sendOtp = require("../emails/sms");
 
 const db = new PrismaClient();
 
@@ -85,7 +86,7 @@ const createUser = async (req, res, next) => {
     const hashedPass = await bcrypt.hash(password, salt);
 
     const code = Math.floor(100000 + Math.random() * 900000).toString();
-    const expiration = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+    const expiration = new Date(Date.now() + 10 * 60 * 1000); 
 
     const user = await db.user.create({
       data: {
@@ -105,6 +106,8 @@ const createUser = async (req, res, next) => {
       user.firstName,
       user.lastName
     );
+
+    await sendOtp(phone, user.verificationCode);
 
     const {
       password: _,
