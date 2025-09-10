@@ -1,14 +1,15 @@
-import { ThemeBtn } from "./components/global/theme-btn";
-import { Button } from "./components/ui/button";
+import React from "react";
+import { Route, Routes } from "react-router-dom";
+import Login from "./pages/auth/Login";
+import Register from "./pages/auth/Register";
 
 const App = () => {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center p-4">
-      <h1>
-        <Button>Click me</Button>
-        <ThemeBtn />
-      </h1>
-    </div>
+    <Routes>
+      {/* <Route path="/" element={<Dashboard />} /> */}
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+    </Routes>
   );
 };
 
