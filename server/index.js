@@ -19,14 +19,10 @@ app.use("/api/auth", authRoutes);
 app.use("/api/users", usersRoutes);
 
 app.get("/", (req, res) => {
-  res.send("Api is warkin");
+  res.send("Api is warking");
 });
 
 app.use(notFound);
 app.use(errorHandler);
-
-app.listen(port, () => {
-  console.log(`Server is running on port http://localhost:${port}`);
-});
 
 module.exports = app;
