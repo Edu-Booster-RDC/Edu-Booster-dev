@@ -25,6 +25,8 @@ model User {
   codeExpiration        DateTime?
   phoneCodeExpiration   DateTime?
   phoneVerificationCode String?
+  resetCode             String?
+  resetCodeExpiration   DateTime?
 
   // Relation
   schoolInfo SchoolInfo?
