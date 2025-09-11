@@ -86,7 +86,8 @@ const createUser = async (req, res, next) => {
     const hashedPass = await bcrypt.hash(password, salt);
 
     const code = Math.floor(100000 + Math.random() * 900000).toString();
-    const expiration = new Date(Date.now() + 10 * 60 * 1000); 
+    const phonecode = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiration = new Date(Date.now() + 10 * 60 * 1000);
 
     const user = await db.user.create({
       data: {
@@ -97,6 +98,8 @@ const createUser = async (req, res, next) => {
         password: hashedPass,
         verificationCode: code,
         codeExpiration: expiration,
+        phoneVerificationCode: phonecode,
+        phoneCodeExpiration: expiration,
       },
     });
 
@@ -107,7 +110,7 @@ const createUser = async (req, res, next) => {
       user.lastName
     );
 
-    await sendOtp(phone, user.verificationCode);
+    await sendOtp(phone, user.phoneVerificationCode);
 
     const {
       password: _,

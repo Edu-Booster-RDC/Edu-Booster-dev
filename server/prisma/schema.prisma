@@ -23,6 +23,7 @@ model User {
   isVerified            Boolean   @default(false)
   verificationCode      String?
   codeExpiration        DateTime?
+  phoneCodeExpiration   DateTime?
   phoneVerificationCode String?
 
   // Relation
