@@ -3,9 +3,16 @@ const HttpError = require("../models/error");
 const db = new PrismaClient();
 const fs = require("fs");
 const path = require("path");
+const cloudinary = require("cloudinary").v2;
 const { v4: uuid } = require("uuid");
 const { sendCode } = require("../emails/sendMail");
 const sendOtp = require("../emails/sms");
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 const getUsers = async (req, res, next) => {
   try {
@@ -73,82 +80,82 @@ const getUserById = async (req, res, next) => {
   }
 };
 
-const addAvatar = async (req, res, next) => {
-  try {
-    if (!req.files || !req.files.avatar) {
-      return next(new HttpError("Veuillez télécharger une image.", 400));
-    }
+// const addAvatar = async (req, res, next) => {
+//   try {
+//     if (!req.files || !req.files.avatar) {
+//       return next(new HttpError("Veuillez télécharger une image.", 400));
+//     }
 
-    const user = await db.user.findUnique({
-      where: { id: req.user.id },
-    });
+//     const user = await db.user.findUnique({
+//       where: { id: req.user.id },
+//     });
 
-    if (!user) {
-      return next(new HttpError("Utilisateur non trouvé.", 404));
-    }
+//     if (!user) {
+//       return next(new HttpError("Utilisateur non trouvé.", 404));
+//     }
 
-    // Supprimer l’ancien avatar s’il existe
-    if (user.avatarUrl) {
-      const oldPath = path.join(__dirname, "..", "uploads", user.avatarUrl);
-      fs.unlink(oldPath, (err) => {
-        if (err)
-          console.warn("Échec de la suppression de l’ancien avatar:", err);
-      });
-    }
+//     // Supprimer l’ancien avatar s’il existe
+//     if (user.avatarUrl) {
+//       const oldPath = path.join(__dirname, "..", "uploads", user.avatarUrl);
+//       fs.unlink(oldPath, (err) => {
+//         if (err)
+//           console.warn("Échec de la suppression de l’ancien avatar:", err);
+//       });
+//     }
 
-    const { avatar } = req.files;
+//     const { avatar } = req.files;
 
-    if (avatar.size > 2 * 1024 * 1024) {
-      return next(
-        new HttpError("Le fichier est trop volumineux (max 2MB).", 400)
-      );
-    }
+//     if (avatar.size > 2 * 1024 * 1024) {
+//       return next(
+//         new HttpError("Le fichier est trop volumineux (max 2MB).", 400)
+//       );
+//     }
 
-    const splittedFilename = avatar.name.split(".");
-    const newFilename =
-      splittedFilename[0] + "-" + uuid() + "." + splittedFilename.pop();
+//     const splittedFilename = avatar.name.split(".");
+//     const newFilename =
+//       splittedFilename[0] + "-" + uuid() + "." + splittedFilename.pop();
 
-    avatar.mv(
-      path.join(__dirname, "..", "uploads", newFilename),
-      async (err) => {
-        if (err) {
-          console.error("Erreur lors de l’enregistrement de l’avatar:", err);
-          return next(
-            new HttpError("Échec du téléchargement du fichier.", 500)
-          );
-        }
+//     avatar.mv(
+//       path.join(__dirname, "..", "uploads", newFilename),
+//       async (err) => {
+//         if (err) {
+//           console.error("Erreur lors de l’enregistrement de l’avatar:", err);
+//           return next(
+//             new HttpError("Échec du téléchargement du fichier.", 500)
+//           );
+//         }
 
-        try {
-          const updatedUser = await db.user.update({
-            where: { id: req.user.id },
-            data: { avatarUrl: newFilename },
-          });
+//         try {
+//           const updatedUser = await db.user.update({
+//             where: { id: req.user.id },
+//             data: { avatarUrl: newFilename },
+//           });
 
-          return res.status(200).json({
-            success: true,
-            res: updatedUser,
-          });
-        } catch (updateError) {
-          console.error(
-            "Erreur lors de la mise à jour de l’avatar:",
-            updateError
-          );
-          return next(
-            new HttpError("Impossible de mettre à jour l’avatar.", 500)
-          );
-        }
-      }
-    );
-  } catch (error) {
-    console.error("Erreur dans addAvatar:", error);
-    return next(
-      new HttpError(
-        "Une erreur est survenue lors du téléchargement de l’avatar.",
-        500
-      )
-    );
-  }
-};
+//           return res.status(200).json({
+//             success: true,
+//             res: updatedUser,
+//           });
+//         } catch (updateError) {
+//           console.error(
+//             "Erreur lors de la mise à jour de l’avatar:",
+//             updateError
+//           );
+//           return next(
+//             new HttpError("Impossible de mettre à jour l’avatar.", 500)
+//           );
+//         }
+//       }
+//     );
+//   } catch (error) {
+//     console.error("Erreur dans addAvatar:", error);
+//     return next(
+//       new HttpError(
+//         "Une erreur est survenue lors du téléchargement de l’avatar.",
+//         500
+//       )
+//     );
+//   }
+// };
 
 const updateUser = async (req, res, next) => {
   const { userId } = req.params;
@@ -248,6 +255,77 @@ const updateUser = async (req, res, next) => {
     return next(
       new HttpError(
         "Une erreur est survenue lors de la mise à jour de l’utilisateur.",
+        500
+      )
+    );
+  }
+};
+
+const addAvatar = async (req, res, next) => {
+  try {
+    if (!req.files || !req.files.avatar) {
+      return next(new HttpError("Veuillez télécharger une image.", 400));
+    }
+
+    const user = await db.user.findUnique({
+      where: { id: req.user.id },
+    });
+
+    if (!user) {
+      return next(new HttpError("Utilisateur non trouvé.", 404));
+    }
+
+    const { avatar } = req.files;
+
+    if (avatar.size > 2 * 1024 * 1024) {
+      return next(
+        new HttpError("Le fichier est trop volumineux (max 2MB).", 400)
+      );
+    }
+
+    // Upload vers Cloudinary
+    cloudinary.uploader
+      .upload_stream(
+        {
+          folder: "edu-booster/avatars",
+          public_id: uuid(),
+          resource_type: "image",
+        },
+        async (error, result) => {
+          if (error) {
+            console.error("Erreur Cloudinary:", error);
+            return next(
+              new HttpError("Échec du téléchargement de l’avatar.", 500)
+            );
+          }
+
+          try {
+            const updatedUser = await db.user.update({
+              where: { id: req.user.id },
+              data: { avatarUrl: result.secure_url }, // on stocke l’URL Cloudinary
+            });
+
+            return res.status(200).json({
+              success: true,
+              res: updatedUser,
+            });
+          } catch (updateError) {
+            console.error(
+              "Erreur lors de la mise à jour de l’avatar:",
+              updateError
+            );
+            return next(
+              new HttpError("Impossible de mettre à jour l’avatar.", 500)
+            );
+          }
+        }
+      )
+      .end(avatar.data);
+  } catch (error) {
+    console.error("Erreur dans addAvatar:", error);
+    return next(
+      new HttpError(
+        "Une erreur est survenue lors du téléchargement de l’avatar.",
         500
       )
     );
