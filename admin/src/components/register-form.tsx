@@ -1,82 +1,10 @@
-// import { cn } from "@/lib/utils"
-// import { Button } from "@/components/ui/button"
-// import {
-//   Card,
-//   CardContent,
-//   CardDescription,
-//   CardHeader,
-//   CardTitle,
-// } from "@/components/ui/card"
-// import { Input } from "@/components/ui/input"
-// import { Label } from "@/components/ui/label"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
-// export function LoginForm({
-//   className,
-//   ...props
-// }: React.ComponentProps<"div">) {
-//   return (
-//     <div className={cn("flex flex-col gap-6", className)} {...props}>
-//       <Card>
-//         <CardHeader>
-//           <CardTitle>Login to your account</CardTitle>
-//           <CardDescription>
-//             Enter your email below to login to your account
-//           </CardDescription>
-//         </CardHeader>
-//         <CardContent>
-//           <form>
-//             <div className="flex flex-col gap-6">
-//               <div className="grid gap-3">
-//                 <Label htmlFor="email">Email</Label>
-//                 <Input
-//                   id="email"
-//                   type="email"
-//                   placeholder="m@example.com"
-//                   required
-//                 />
-//               </div>
-//               <div className="grid gap-3">
-//                 <div className="flex items-center">
-//                   <Label htmlFor="password">Password</Label>
-//                   <a
-//                     href="#"
-//                     className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-//                   >
-//                     Forgot your password?
-//                   </a>
-//                 </div>
-//                 <Input id="password" type="password" required />
-//               </div>
-//               <div className="flex flex-col gap-3">
-//                 <Button type="submit" className="w-full">
-//                   Login
-//                 </Button>
-//                 <Button variant="outline" className="w-full">
-//                   Login with Google
-//                 </Button>
-//               </div>
-//             </div>
-//             <div className="mt-4 text-center text-sm">
-//               Don&apos;t have an account?{" "}
-//               <a href="#" className="underline underline-offset-4">
-//                 Sign up
-//               </a>
-//             </div>
-//           </form>
-//         </CardContent>
-//       </Card>
-//     </div>
-//   )
-// }
-
-
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-
-export function LoginForm({
+export function RegisterForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
@@ -87,11 +15,17 @@ export function LoginForm({
           <form className="p-6 md:p-8">
             <div className="flex flex-col gap-6">
               <div className="flex flex-col items-center text-center">
-                <h1 className="text-2xl font-bold">Welcome back</h1>
+                <h1 className="text-2xl font-bold">Create your account</h1>
                 <p className="text-muted-foreground text-balance">
-                  Login to your EduBooster account
+                  Sign up to get started with EduBooster
                 </p>
               </div>
+              {/* Full name */}
+              <div className="grid gap-3">
+                <Label htmlFor="name">Full Name</Label>
+                <Input id="name" type="text" placeholder="John Doe" required />
+              </div>
+              {/* Email */}
               <div className="grid gap-3">
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -101,26 +35,28 @@ export function LoginForm({
                   required
                 />
               </div>
+              {/* Password */}
               <div className="grid gap-3">
-                <div className="flex items-center">
-                  <Label htmlFor="password">Password</Label>
-                  <a
-                    href="#"
-                    className="ml-auto text-sm underline-offset-2 hover:underline"
-                  >
-                    Forgot your password?
-                  </a>
-                </div>
+                <Label htmlFor="password">Password</Label>
                 <Input id="password" type="password" required />
               </div>
+              {/* Confirm Password */}
+              <div className="grid gap-3">
+                <Label htmlFor="confirm-password">Confirm Password</Label>
+                <Input id="confirm-password" type="password" required />
+              </div>
+              {/* Submit */}
               <Button type="submit" className="w-full">
-                Login
+                Sign Up
               </Button>
+
+              {/* Divider */}
               <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
                 <span className="bg-card text-muted-foreground relative z-10 px-2">
                   Or continue with
                 </span>
               </div>
+
               <div className="grid grid-cols-3 gap-4">
                 <Button variant="outline" type="button" className="w-full">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -150,10 +86,11 @@ export function LoginForm({
                   <span className="sr-only">Login with Meta</span>
                 </Button>
               </div>
+
               <div className="text-center text-sm">
-                Don&apos;t have an account?{" "}
-                <a href="/register" className="underline underline-offset-4">
-                  Sign up
+                Already have an account?{" "}
+                <a href="/login" className="underline underline-offset-4">
+                  Login
                 </a>
               </div>
             </div>
@@ -167,10 +104,11 @@ export function LoginForm({
           </div>
         </CardContent>
       </Card>
+
       <div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
-        By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
-        and <a href="#">Privacy Policy</a>.
+        By signing up, you agree to our <a href="#">Terms of Service</a> and{" "}
+        <a href="#">Privacy Policy</a>.
       </div>
     </div>
-  )
+  );
 }
