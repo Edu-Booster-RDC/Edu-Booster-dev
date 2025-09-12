@@ -5,9 +5,12 @@ const { notFound, errorHandler } = require("./middlewares/error");
 const authRoutes = require("./routes/auth.routes");
 const usersRoutes = require("./routes/users.routes");
 const uplaod = require("express-fileupload");
+const http = require("http");
+const socketConfig = require("./config/socket");
 
 const app = express();
 const port = process.env.PORT || 3000;
+const server = http.createServer(app);
 
 app.use(express.json({ extended: true }));
 app.use(express.urlencoded({ extended: true }));
@@ -24,6 +27,8 @@ app.use("/api/users", usersRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
+
+socketConfig(server);
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
